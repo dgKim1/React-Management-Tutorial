@@ -8,6 +8,7 @@ import { TableBody } from '@mui/material';
 import { TableRow } from '@mui/material';
 import { TableCell } from '@mui/material';
 import {withStyles} from '@material-ui/core/styles';
+import {CircularProgress} from '@mui/material';
 
 
 const styles = theme => ({
@@ -18,16 +19,33 @@ const styles = theme => ({
   },
   table: {
     minWidth: 1080
+  },
+  progress: {
+    marginTop: theme.spacing(2)
   }
 });
 
+/*리엑트 라이브러리가 컴포넌트를 실행할때
 
+1) constructor()
+2) componentWillMount()
+3) render() 컴포넌트 그림
+4) componentDidMount()
+
+*/
+
+/*
+props(변하지 않음) or state => souldComponentUpdate()
+-->다시 render()를 불러와서 뷰를 갱신해줌
+*/
 class App extends Component {
   state = {
-    customers: ""
+    customers: "",
+    completed: 0
   }
 
   componentDidMount() {
+    this.timer = setInterval(this.progress, 1000);
     this.callApi()
       .then(res => this.setState({customers: res}))
       .catch(err => console.log(err));
@@ -37,6 +55,11 @@ class App extends Component {
     const response = await fetch('/api/customers');
     const body = await response.json();
     return body;
+  }
+
+  progress = () => {
+    const { completed } = this.state;
+    this.setState({completed: completed >= 100 ? 0 : completed + 5});
   }
 
   render() {
@@ -56,7 +79,13 @@ class App extends Component {
             </TableHead>
             <TableBody>
             {this.state.customers ? this.state.customers.map(c => { return (<Customer key = {c.id} id = {c.id} image = {c.image} name = {c.name} birthday = {c.birthday} gender = {c.gender} job = {c.job}/>);
-             }) : ""}
+             }) : 
+              <TableRow>
+                <TableCell colSpan="6" align="center">
+                   <CircularProgress className={classes.progress} variant="determinate" value = {this.state.completed}/>
+                </TableCell>              
+              </TableRow>
+              }
             </TableBody>
         </Table>
       </Paper>
