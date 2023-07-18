@@ -1,4 +1,5 @@
 import Customer from './components/Customer';
+import CustomerAdd from './components/CustomerAdd';
 import React, { Component } from 'react';
 import './App.css';
 import { Paper } from '@mui/material'; 
@@ -39,13 +40,27 @@ props(변하지 않음) or state => souldComponentUpdate()
 -->다시 render()를 불러와서 뷰를 갱신해줌
 */
 class App extends Component {
-  state = {
-    customers: "",
-    completed: 0
+  
+  constructor(props){
+    super(props);
+    this.state = {
+      customers: '',
+      completed: 0
+    }
+  }
+
+  stateRefresh = () => {
+    this.setState({
+      customers: '',
+      completed: 0
+    });
+    this.callApi()
+      .then(res => this.setState({customers: res}))
+      .catch(err => console.log(err));
   }
 
   componentDidMount() {
-    this.timer = setInterval(this.progress, 1000);
+    this.timer = setInterval(this.progress, 20);
     this.callApi()
       .then(res => this.setState({customers: res}))
       .catch(err => console.log(err));
@@ -65,6 +80,7 @@ class App extends Component {
   render() {
     const {classes} = this.props;
     return(
+      <div>
       <Paper className={classes.root}>
         <Table className={classes.table}>
             <TableHead>
@@ -89,6 +105,9 @@ class App extends Component {
             </TableBody>
         </Table>
       </Paper>
+      <CustomerAdd stateRefresh={this.stateRefresh}/>
+      </div>
+
     );
 
 }
